@@ -24,7 +24,7 @@
 - **添加好友（llonebot：`add_friend`）**
   - 路径：`/add_friend`
   - 请求参数：
-    - `user_id`（必填）：QQ 号
+    - `user_id`（必填）：QQ 号或 UID
     - `comment`（选填）：验证信息，不填默认空字符串
     - `source_id`（选填）：来源标识，默认 `0`
     - `group_id`（选填）：若从群聊添加，可传群号
@@ -49,11 +49,35 @@
 - **搜索 QQ 群（llonebot：`search_group`）**
   - 路径：`/search_group`
   - 请求参数：
-    - `group_id`（必填）：群号。
-  - 返回字段：`group_id`、`group_name`、`member_count`、`max_member_count`、`owner_uid`、`owner_uin`、`group_memo`、`remark_name`、`join_group_auth`、`is_conf_group`。
+    - `group_id`：群号，提供时返回单个群的详细信息。
+    - `keyword`：关键字，支持匹配群名、群备注或群号，提供时返回匹配到的群列表。
+    - `limit`：可选，关键字搜索时返回的最大条目数。
+  - 返回字段：
+    - 以 `group_id` 查询：返回单个群对象，包含 `group_id`、`group_name`、`member_count`、`max_member_count`、`owner_uid`、`owner_uin`、`group_memo`、`remark_name`、`join_group_auth`、`is_conf_group`。
+    - 以 `keyword` 查询：返回对象 `{ groups: [] }`，列表项包含 `group_id`、`group_name`、`member_count`、`max_member_count`、`owner_uid`、`owner_uin`、`remark_name`、`is_conf_group`。
   - 请求示例：
     ```bash
+    # 群号精准查询
     curl -X GET "http://127.0.0.1:3000/search_group?group_id=987654321"
+
+    # 关键词模糊搜索
+    curl -X GET "http://127.0.0.1:3000/search_group?keyword=游戏&limit=5"
+    ```
+
+- **申请加入 QQ 群（llonebot：`join_group`）**
+  - 路径：`/join_group`
+  - 请求参数：
+    - `group_id`（必填）：群号。
+    - `comment`：可选，申请附言。
+    - `source_id`：可选，来源标识，默认 0。
+    - `inviter_uid`：可选，若通过邀请链接申请可传入邀请人 UID。
+    - `ticket`：可选，部分加群渠道携带的校验 ticket。
+  - 返回字段：`group_id`、`status`（固定为 `ok` 表示提交成功）。
+  - 请求示例：
+    ```bash
+    curl -X POST "http://127.0.0.1:3000/join_group" \
+      -H "Content-Type: application/json" \
+      -d '{"group_id": "987654321", "comment": "一起玩"}'
     ```
 
 - **关键词搜索（llonebot：`search`）**
