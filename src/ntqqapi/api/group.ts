@@ -40,6 +40,51 @@ export class NTQQGroupApi extends Service {
     return result[1]
   }
 
+  async searchGroupByKeyword(keyword: string, limit?: number): Promise<GroupSimpleInfo[]> {
+    const loweredKeyword = keyword.toLowerCase()
+
+    try {
+      const result = await invoke<{ errCode: number, errMsg: string, groupList?: GroupSimpleInfo[] }>(
+        'nodeIKernelGroupService/searchGroup',
+        [keyword],
+      )
+
+      if (result.errCode === 0 && Array.isArray(result.groupList)) {
+        const groups = typeof limit === 'number' ? result.groupList.slice(0, limit) : result.groupList
+        return groups
+      }
+
+      if (result.errMsg) {
+        throw new Error(result.errMsg)
+      }
+    }
+    catch (err) {
+      this.ctx.logger?.warn('[searchGroupByKeyword] fallback to local list: %s', err instanceof Error ? err.message : err)
+    }
+
+    const groups = await this.getGroups(true)
+    return groups
+      .filter(info => {
+        const haystack = [info.groupName, info.remarkName, info.groupCode]
+          .filter(Boolean)
+          .map(value => value.toLowerCase())
+        return haystack.some(value => value.includes(loweredKeyword))
+      })
+      .slice(0, typeof limit === 'number' ? limit : undefined)
+  }
+
+  async getUinByUids(uidList: string[]) {
+    const result = await invoke<{ errCode: number, errMsg: string, uins: Map<string, string> }>(
+      'nodeIKernelGroupService/getUinByUids',
+      [uidList],
+    )
+    if (result.errCode !== 0) {
+      throw new Error(result.errMsg || '获取 UIN 失败')
+    }
+
+    return result.uins || new Map<string, string>()
+  }
+
   async getGroupMembers(groupCode: string, forceFetch: boolean = true) {
     return await invoke(NTMethod.GROUP_MEMBERS, [groupCode, forceFetch])
   }
@@ -236,6 +281,27 @@ export class NTQQGroupApi extends Service {
           return payload.groupCode === groupCode
         },
       },
+    )
+  }
+
+  async joinGroup(req: {
+    groupCode: string
+    reqMsg?: string
+    sourceId?: number
+    inviterUid?: string
+    ticket?: string
+  }) {
+    return await invoke(
+      'nodeIKernelGroupService/joinGroup',
+      [
+        {
+          groupCode: req.groupCode,
+          reqMsg: req.reqMsg ?? '',
+          sourceId: req.sourceId ?? 0,
+          inviterUid: req.inviterUid ?? '',
+          ticket: req.ticket ?? '',
+        },
+      ],
     )
   }
 
