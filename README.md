@@ -10,6 +10,8 @@
 ## Document
 <https://llonebot.com>
 
+- [HTTP API 调用指南](doc/http_api.md)
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/LLOneBot/LLOneBot.svg?variant=adaptive)](https://starchart.cc/LLOneBot/LLOneBot)
