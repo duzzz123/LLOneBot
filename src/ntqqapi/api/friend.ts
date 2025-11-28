@@ -30,17 +30,23 @@ export class NTQQFriendApi extends Service {
       addFrom: addInfo.addFrom ?? 0,
     }
 
-    const methodCandidates = [
-      'addBuddy',
-      'requestAddBuddy',
-      'addBuddySimple',
-    ] as const
+    const methodCandidates: { method: string, args: any[] }[] = [
+      { method: 'addBuddy', args: [payload] },
+      { method: 'requestAddBuddy', args: [payload] },
+      { method: 'addBuddySimple', args: [payload] },
+      { method: 'addFriend', args: [payload] },
+      { method: 'applyAddBuddy', args: [payload] },
+      { method: 'applyAddFriend', args: [payload] },
+      { method: 'addBuddyWithSource', args: [payload] },
+      { method: 'addBuddy', args: [payload.friendUid, payload.reqMsg, payload.sourceId, payload.groupCode, payload.addFrom] },
+      { method: 'requestAddBuddy', args: [payload.friendUid, payload.reqMsg, payload.sourceId, payload.groupCode, payload.addFrom] },
+    ]
 
     let lastMissingMethodError: unknown
 
-    for (const method of methodCandidates) {
+    for (const { method, args } of methodCandidates) {
       try {
-        return await invoke(`nodeIKernelBuddyService/${method}`, [payload])
+        return await invoke(`nodeIKernelBuddyService/${method}`, args)
       }
       catch (err) {
         const isMissingMethod = err instanceof TypeError && /is not a function/.test(err.message)

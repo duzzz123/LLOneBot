@@ -78,8 +78,14 @@ export class NTQQGroupApi extends Service {
       const attempts: any[][] = []
 
       // Prefer signatures with a limit/count argument if the kernel expects one.
-      if (typeof maxResults === 'number') attempts.push([keyword, maxResults])
+      if (typeof maxResults === 'number') {
+        attempts.push([keyword, maxResults])
+        attempts.push([{ keyword, count: maxResults }])
+        attempts.push([{ keyword, limit: maxResults }])
+        attempts.push([{ keyword, page: 0, count: maxResults }])
+      }
       attempts.push([keyword])
+      attempts.push([{ keyword }])
 
       for (const params of attempts) {
         const groups = await trySearch(params)

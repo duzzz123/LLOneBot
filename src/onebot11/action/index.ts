@@ -115,7 +115,6 @@ import { DeleteGroupAlbum } from '@/onebot11/action/llonebot/group/GroupAlbum/De
 import { AddFriend } from './llonebot/user/AddFriend'
 import { SearchUser } from './llonebot/user/SearchUser'
 import { SearchGroup } from './llonebot/group/SearchGroup'
-import { Search } from './llonebot/system/Search'
 import { JoinGroup } from './llonebot/group/JoinGroup'
 
 export function initActionMap(adapter: Adapter) {
@@ -171,7 +170,6 @@ export function initActionMap(adapter: Adapter) {
     new SearchUser(adapter),
     new SearchGroup(adapter),
     new JoinGroup(adapter),
-    new Search(adapter),
     // onebot11
     new SendLike(adapter),
     new GetMsg(adapter),

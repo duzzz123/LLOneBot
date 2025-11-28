@@ -14,8 +14,8 @@ export class AddFriend extends BaseAction<Payload, null> {
   payloadSchema = Schema.object({
     user_id: Schema.union([Number, String]).required(),
     comment: Schema.string().default(''),
-    source_id: Schema.number().default(0),
-    group_id: Schema.union([Number, String])
+    source_id: Schema.union([Schema.number(), Schema.string()]).default(null),
+    group_id: Schema.union([Number, String]).default(null)
   })
 
   protected async _handle(payload: Payload) {
@@ -29,7 +29,7 @@ export class AddFriend extends BaseAction<Payload, null> {
 
     if (!uid) throw new Error('无法获取用户信息')
 
-    const sourceId = payload.source_id ?? (payload.group_id ? 203 : 201)
+    const sourceId = payload.source_id == null ? (payload.group_id ? 203 : 201) : Number(payload.source_id)
 
     const res = await this.ctx.ntFriendApi.addBuddy({
       friendUid: uid,
