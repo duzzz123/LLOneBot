@@ -56,6 +56,18 @@
     curl -X GET "http://127.0.0.1:3000/search_group?group_id=987654321"
     ```
 
+- **关键词搜索（llonebot：`search`）**
+  - 路径：`/search`
+  - 请求参数：
+    - `keyword`（必填）：用于匹配联系人和群聊的关键词，可为昵称、备注或号码的部分字符串。
+  - 返回字段：
+    - `users`：匹配到的 QQ 列表，每项包含 `uid`、`uin`、`nickname`、`remark`、`qid`、`avatar_url`。
+    - `groups`：匹配到的群列表，每项包含 `group_id`、`group_name`、`remark_name`、`member_count`、`max_member_count`、`owner_uid`、`is_conf_group`。
+  - 请求示例：
+    ```bash
+    curl -X GET "http://127.0.0.1:3000/search?keyword=游戏"
+    ```
+
 ## HTTP POST（推送模式）
 - 当 `type` 为 `http-post` 且 `enable` 为 `true` 时，事件会以 POST 方式推送到配置的 `url`。
 - 若配置了 `token`，推送时会在请求头增加 `x-signature: sha1=<HMAC>`，计算方式为 `HMAC_SHA1(body, token)`。

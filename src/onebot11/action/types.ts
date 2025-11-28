@@ -61,6 +61,7 @@ export enum ActionName {
   AddFriend = 'add_friend',
   SearchUser = 'search_user',
   SearchGroup = 'search_group',
+  Search = 'search',
   // onebot 11
   SendLike = 'send_like',
   GetLoginInfo = 'get_login_info',
