@@ -31,6 +31,22 @@ export interface NodeIKernelBuddyService {
     addFrom?: number
   }): Promise<GeneralCallResult>
 
+  requestAddBuddy?(addInfo: {
+    friendUid: string
+    reqMsg?: string
+    sourceId?: number
+    groupCode?: string
+    addFrom?: number
+  }): Promise<GeneralCallResult>
+
+  addBuddySimple?(addInfo: {
+    friendUid: string
+    reqMsg?: string
+    sourceId?: number
+    groupCode?: string
+    addFrom?: number
+  }): Promise<GeneralCallResult>
+
   getBuddyRecommendContactArkJson(uid: string, phoneNumber: string): Promise<GeneralCallResult & { arkMsg: string }>
 
   delBuddy(delInfo: {

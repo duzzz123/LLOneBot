@@ -219,7 +219,7 @@ export interface NodeIKernelGroupService {
 
   modifyGroupRemark(groupCode: string, groupRemark: string): Promise<GeneralCallResult>
 
-  searchGroup(keyword: string): Promise<{
+  searchGroup(keyword: string, limit?: number): Promise<{
     errCode: number
     errMsg: string
     groupList?: GroupSimpleInfo[]
