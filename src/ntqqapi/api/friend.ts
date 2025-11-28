@@ -15,6 +15,49 @@ export class NTQQFriendApi extends Service {
     super(ctx, 'ntFriendApi', true)
   }
 
+  async addBuddy(addInfo: {
+    friendUid: string
+    reqMsg?: string
+    sourceId?: number
+    groupCode?: string
+    addFrom?: number
+  }) {
+    const payload = {
+      friendUid: addInfo.friendUid,
+      reqMsg: addInfo.reqMsg ?? '',
+      sourceId: addInfo.sourceId ?? 0,
+      groupCode: addInfo.groupCode ?? '0',
+      addFrom: addInfo.addFrom ?? 0,
+    }
+
+    const methodCandidates = [
+      'addBuddy',
+      'requestAddBuddy',
+      'addBuddySimple',
+    ] as const
+
+    let lastMissingMethodError: unknown
+
+    for (const method of methodCandidates) {
+      try {
+        return await invoke(`nodeIKernelBuddyService/${method}`, [payload])
+      }
+      catch (err) {
+        const isMissingMethod = err instanceof TypeError && /is not a function/.test(err.message)
+
+        if (!isMissingMethod) throw err
+
+        lastMissingMethodError = err
+      }
+    }
+
+    if (lastMissingMethodError instanceof Error) {
+      throw new Error(`调用好友添加接口失败，所有候选方法不可用：${lastMissingMethodError.message}`)
+    }
+
+    throw new Error('调用好友添加接口失败，所有候选方法不可用')
+  }
+
   async handleFriendRequest(friendUid: string, reqTime: string, accept: boolean) {
     return await invoke(NTMethod.HANDLE_FRIEND_REQUEST, [{
       friendUid,

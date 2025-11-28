@@ -40,6 +40,81 @@ export class NTQQGroupApi extends Service {
     return result[1]
   }
 
+  async searchGroupByKeyword(keyword: string, limit?: number): Promise<GroupSimpleInfo[]> {
+    const loweredKeyword = keyword.toLowerCase()
+    const maxResults = typeof limit === 'number' ? limit : undefined
+
+    const normalizeGroupList = (raw: any): GroupSimpleInfo[] => {
+      const candidates = [
+        raw?.groupList,
+        raw?.groups,
+        raw?.result?.groupList,
+        raw?.result?.groups,
+        raw?.searchResult?.groupList,
+        raw?.searchResult?.groups,
+      ]
+
+      for (const candidate of candidates) {
+        if (Array.isArray(candidate)) return candidate
+        if (candidate instanceof Map) return Array.from(candidate.values())
+      }
+
+      return []
+    }
+
+    const trySearch = async (params: any[]): Promise<GroupSimpleInfo[]> => {
+      const result = await invoke<{ errCode: number, errMsg?: string }>(
+        'nodeIKernelGroupService/searchGroup',
+        params,
+      )
+
+      const groups = normalizeGroupList(result)
+      if (result.errCode === 0 && groups.length) return groups
+      if (result.errCode !== 0 && result.errMsg) throw new Error(result.errMsg)
+      return groups
+    }
+
+    try {
+      const attempts: any[][] = []
+
+      // Prefer signatures with a limit/count argument if the kernel expects one.
+      if (typeof maxResults === 'number') attempts.push([keyword, maxResults])
+      attempts.push([keyword])
+
+      for (const params of attempts) {
+        const groups = await trySearch(params)
+        if (groups.length) {
+          return typeof maxResults === 'number' ? groups.slice(0, maxResults) : groups
+        }
+      }
+    }
+    catch (err) {
+      this.ctx.logger?.warn('[searchGroupByKeyword] fallback to local list: %s', err instanceof Error ? err.message : err)
+    }
+
+    const groups = await this.getGroups(true)
+    return groups
+      .filter(info => {
+        const haystack = [info.groupName, info.remarkName, info.groupCode]
+          .filter(Boolean)
+          .map(value => value.toLowerCase())
+        return haystack.some(value => value.includes(loweredKeyword))
+      })
+      .slice(0, maxResults)
+  }
+
+  async getUinByUids(uidList: string[]) {
+    const result = await invoke<{ errCode: number, errMsg: string, uins: Map<string, string> }>(
+      'nodeIKernelGroupService/getUinByUids',
+      [uidList],
+    )
+    if (result.errCode !== 0) {
+      throw new Error(result.errMsg || '获取 UIN 失败')
+    }
+
+    return result.uins || new Map<string, string>()
+  }
+
   async getGroupMembers(groupCode: string, forceFetch: boolean = true) {
     return await invoke(NTMethod.GROUP_MEMBERS, [groupCode, forceFetch])
   }
@@ -236,6 +311,27 @@ export class NTQQGroupApi extends Service {
           return payload.groupCode === groupCode
         },
       },
+    )
+  }
+
+  async joinGroup(req: {
+    groupCode: string
+    reqMsg?: string
+    sourceId?: number
+    inviterUid?: string
+    ticket?: string
+  }) {
+    return await invoke(
+      'nodeIKernelGroupService/joinGroup',
+      [
+        {
+          groupCode: req.groupCode,
+          reqMsg: req.reqMsg ?? '',
+          sourceId: req.sourceId ?? 0,
+          inviterUid: req.inviterUid ?? '',
+          ticket: req.ticket ?? '',
+        },
+      ],
     )
   }
 
