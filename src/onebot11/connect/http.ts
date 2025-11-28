@@ -209,10 +209,16 @@ class OB11Http {
     const actionName = req.path.replaceAll('/', '')
     const action = this.config.actionMap.get(actionName)
     if (action) {
-      res.json(await action.handle(payload, {
-        messageFormat: this.config.messageFormat,
-        debug: this.config.debug
-      }))
+      try {
+        const result = await action.handle(payload, {
+          messageFormat: this.config.messageFormat,
+          debug: this.config.debug
+        })
+        res.json(result)
+      } catch (err) {
+        this.ctx.logger.error('处理 HTTP 动作失败', actionName, err)
+        res.status(500).json(OB11Response.error((err as Error).message || 'internal error', 500))
+      }
     } else {
       res.status(404).json(OB11Response.error(`${actionName} API 不存在`, 404))
     }

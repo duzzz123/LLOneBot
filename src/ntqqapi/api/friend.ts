@@ -15,6 +15,55 @@ export class NTQQFriendApi extends Service {
     super(ctx, 'ntFriendApi', true)
   }
 
+  async addBuddy(addInfo: {
+    friendUid: string
+    reqMsg?: string
+    sourceId?: number
+    groupCode?: string
+    addFrom?: number
+  }) {
+    const payload = {
+      friendUid: addInfo.friendUid,
+      reqMsg: addInfo.reqMsg ?? '',
+      sourceId: addInfo.sourceId ?? 0,
+      groupCode: addInfo.groupCode ?? '0',
+      addFrom: addInfo.addFrom ?? 0,
+    }
+
+    const methodCandidates: { method: string, args: any[] }[] = [
+      { method: 'addBuddy', args: [payload] },
+      { method: 'requestAddBuddy', args: [payload] },
+      { method: 'addBuddySimple', args: [payload] },
+      { method: 'addFriend', args: [payload] },
+      { method: 'applyAddBuddy', args: [payload] },
+      { method: 'applyAddFriend', args: [payload] },
+      { method: 'addBuddyWithSource', args: [payload] },
+      { method: 'addBuddy', args: [payload.friendUid, payload.reqMsg, payload.sourceId, payload.groupCode, payload.addFrom] },
+      { method: 'requestAddBuddy', args: [payload.friendUid, payload.reqMsg, payload.sourceId, payload.groupCode, payload.addFrom] },
+    ]
+
+    let lastMissingMethodError: unknown
+
+    for (const { method, args } of methodCandidates) {
+      try {
+        return await invoke(`nodeIKernelBuddyService/${method}`, args)
+      }
+      catch (err) {
+        const isMissingMethod = err instanceof TypeError && /is not a function/.test(err.message)
+
+        if (!isMissingMethod) throw err
+
+        lastMissingMethodError = err
+      }
+    }
+
+    if (lastMissingMethodError instanceof Error) {
+      throw new Error(`调用好友添加接口失败，所有候选方法不可用：${lastMissingMethodError.message}`)
+    }
+
+    throw new Error('调用好友添加接口失败，所有候选方法不可用')
+  }
+
   async handleFriendRequest(friendUid: string, reqTime: string, accept: boolean) {
     return await invoke(NTMethod.HANDLE_FRIEND_REQUEST, [{
       friendUid,
