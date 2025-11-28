@@ -184,6 +184,14 @@ export interface NodeIKernelGroupService {
 
   searchMember(sceneId: string, keyword: string): Promise<void>
 
+  joinGroup(req: {
+    groupCode: string
+    reqMsg?: string
+    sourceId?: number
+    inviterUid?: string
+    ticket?: string
+  }): Promise<{ errCode: number, errMsg: string }>
+
   getGroupNotifiesUnreadCount(doubt: boolean): Promise<GeneralCallResult>
 
   getGroupArkInviteState(groupCode: string, ark_seq: string, invitedUin: string): Promise<GeneralCallResult>

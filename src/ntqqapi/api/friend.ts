@@ -15,6 +15,24 @@ export class NTQQFriendApi extends Service {
     super(ctx, 'ntFriendApi', true)
   }
 
+  async addBuddy(addInfo: {
+    friendUid: string
+    reqMsg?: string
+    sourceId?: number
+    groupCode?: string
+    addFrom?: number
+  }) {
+    return await invoke('nodeIKernelBuddyService/addBuddy', [
+      {
+        friendUid: addInfo.friendUid,
+        reqMsg: addInfo.reqMsg ?? '',
+        sourceId: addInfo.sourceId ?? 0,
+        groupCode: addInfo.groupCode ?? '0',
+        addFrom: addInfo.addFrom ?? 0
+      }
+    ])
+  }
+
   async handleFriendRequest(friendUid: string, reqTime: string, accept: boolean) {
     return await invoke(NTMethod.HANDLE_FRIEND_REQUEST, [{
       friendUid,
