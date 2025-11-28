@@ -30,8 +30,12 @@ export class AddFriend extends BaseAction<Payload, null> {
       groupCode: payload.group_id?.toString()
     })
 
+    if (!res || typeof res.result !== 'number') {
+      throw new Error('添加好友调用失败')
+    }
+
     if (res.result !== 0) {
-      throw new Error(res.errMsg)
+      throw new Error(res.errMsg || '添加好友失败')
     }
 
     return null
