@@ -26,7 +26,7 @@
   - 请求参数：
     - `user_id`（必填）：QQ 号或 UID
     - `comment`（选填）：验证信息，不填默认空字符串
-    - `source_id`（选填）：来源标识，默认 `0`
+    - `source_id`（选填）：来源标识；不传时，会根据是否携带 `group_id` 自动选择（无群默认使用 QQ 搜索来源，有群默认使用群来源）。
     - `group_id`（选填）：若从群聊添加，可传群号
   - 请求示例：
     ```bash
@@ -50,7 +50,7 @@
   - 路径：`/search_group`
   - 请求参数：
     - `group_id`：群号，提供时返回单个群的详细信息。
-    - `keyword`：关键字，支持匹配群名、群备注或群号，提供时返回匹配到的群列表。
+    - `keyword`：关键字，优先调用 QQ 全网搜索返回匹配群列表，搜索接口不可用时会回退到本地已加入群的模糊匹配。
     - `limit`：可选，关键字搜索时返回的最大条目数。
   - 返回字段：
     - 以 `group_id` 查询：返回单个群对象，包含 `group_id`、`group_name`、`member_count`、`max_member_count`、`owner_uid`、`owner_uin`、`group_memo`、`remark_name`、`join_group_auth`、`is_conf_group`。

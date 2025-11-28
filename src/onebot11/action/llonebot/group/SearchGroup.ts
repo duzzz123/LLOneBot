@@ -38,7 +38,7 @@ export class SearchGroup extends BaseAction<Payload, Response> {
 
     if (payload.keyword) {
       const keyword = payload.keyword.toString().trim()
-      const groups = await this.ctx.ntGroupApi.searchGroupByKeyword(keyword)
+      const groups = await this.ctx.ntGroupApi.searchGroupByKeyword(keyword, payload.limit)
       const limitedGroups = typeof payload.limit === 'number' ? groups.slice(0, payload.limit) : groups
 
       const ownerUids = limitedGroups

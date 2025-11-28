@@ -29,19 +29,26 @@ export class AddFriend extends BaseAction<Payload, null> {
 
     if (!uid) throw new Error('无法获取用户信息')
 
+    const sourceId = payload.source_id ?? (payload.group_id ? 203 : 201)
+
     const res = await this.ctx.ntFriendApi.addBuddy({
       friendUid: uid,
       reqMsg: payload.comment ?? '',
-      sourceId: payload.source_id ?? 0,
-      groupCode: payload.group_id?.toString()
+      sourceId,
+      groupCode: payload.group_id?.toString() ?? ''
     })
 
-    if (!res || typeof res.result !== 'number') {
-      throw new Error('添加好友调用失败')
+    const resultCode = [res?.result, (res as any)?.ec, (res as any)?.retcode, (res as any)?.ret, (res as any)?.code]
+      .find(code => typeof code === 'number' || typeof code === 'string')
+
+    const normalized = typeof resultCode === 'string' ? Number(resultCode) : resultCode
+
+    if (normalized !== undefined && normalized !== null && normalized !== 0) {
+      throw new Error(res?.errMsg || (res as any)?.msg || `添加好友失败（code=${normalized})`)
     }
 
-    if (res.result !== 0) {
-      throw new Error(res.errMsg || '添加好友失败')
+    if (normalized === undefined || normalized === null) {
+      throw new Error(`添加好友调用失败${res ? `: ${JSON.stringify(res)}` : ''}`)
     }
 
     return null

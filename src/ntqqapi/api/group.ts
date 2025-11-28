@@ -40,15 +40,37 @@ export class NTQQGroupApi extends Service {
     return result[1]
   }
 
-  async searchGroupByKeyword(keyword: string, forceFetch = true): Promise<GroupSimpleInfo[]> {
-    const groups = await this.getGroups(forceFetch)
+  async searchGroupByKeyword(keyword: string, limit?: number): Promise<GroupSimpleInfo[]> {
     const loweredKeyword = keyword.toLowerCase()
-    return groups.filter(info => {
-      const haystack = [info.groupName, info.remarkName, info.groupCode]
-        .filter(Boolean)
-        .map(value => value.toLowerCase())
-      return haystack.some(value => value.includes(loweredKeyword))
-    })
+
+    try {
+      const result = await invoke<{ errCode: number, errMsg: string, groupList?: GroupSimpleInfo[] }>(
+        'nodeIKernelGroupService/searchGroup',
+        [keyword],
+      )
+
+      if (result.errCode === 0 && Array.isArray(result.groupList)) {
+        const groups = typeof limit === 'number' ? result.groupList.slice(0, limit) : result.groupList
+        return groups
+      }
+
+      if (result.errMsg) {
+        throw new Error(result.errMsg)
+      }
+    }
+    catch (err) {
+      this.ctx.logger?.warn('[searchGroupByKeyword] fallback to local list: %s', err instanceof Error ? err.message : err)
+    }
+
+    const groups = await this.getGroups(true)
+    return groups
+      .filter(info => {
+        const haystack = [info.groupName, info.remarkName, info.groupCode]
+          .filter(Boolean)
+          .map(value => value.toLowerCase())
+        return haystack.some(value => value.includes(loweredKeyword))
+      })
+      .slice(0, typeof limit === 'number' ? limit : undefined)
   }
 
   async getUinByUids(uidList: string[]) {

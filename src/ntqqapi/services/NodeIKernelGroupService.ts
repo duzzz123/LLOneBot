@@ -6,6 +6,7 @@ import {
   GroupMsgMask,
   PublishGroupBulletinReq
 } from '@/ntqqapi/types'
+import { GroupSimpleInfo } from '@/ntqqapi/types'
 import { GeneralCallResult } from './common'
 
 export interface NodeIKernelGroupService {
@@ -217,4 +218,10 @@ export interface NodeIKernelGroupService {
   deleteGroupBulletin(groupCode: string, psKey: string, feedsId: string): Promise<GeneralCallResult>
 
   modifyGroupRemark(groupCode: string, groupRemark: string): Promise<GeneralCallResult>
+
+  searchGroup(keyword: string): Promise<{
+    errCode: number
+    errMsg: string
+    groupList?: GroupSimpleInfo[]
+  }>
 }
