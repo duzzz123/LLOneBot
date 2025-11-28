@@ -113,6 +113,8 @@ import { CreateGroupAlbum } from '@/onebot11/action/llonebot/group/GroupAlbum/Cr
 import { DeleteGroupNotice } from './llonebot/group/DeleteGroupNotice'
 import { DeleteGroupAlbum } from '@/onebot11/action/llonebot/group/GroupAlbum/DeleteGroupAlbum'
 import { AddFriend } from './llonebot/user/AddFriend'
+import { SearchUser } from './llonebot/user/SearchUser'
+import { SearchGroup } from './llonebot/group/SearchGroup'
 
 export function initActionMap(adapter: Adapter) {
   const actionHandlers = [
@@ -164,6 +166,8 @@ export function initActionMap(adapter: Adapter) {
     new SetDoubtFriendsAddRequest(adapter),
     new DeleteGroupNotice(adapter),
     new AddFriend(adapter),
+    new SearchUser(adapter),
+    new SearchGroup(adapter),
     // onebot11
     new SendLike(adapter),
     new GetMsg(adapter),

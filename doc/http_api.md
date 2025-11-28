@@ -36,6 +36,26 @@
     ```
   - 返回：调用成功时 `data` 为 `null`，失败会在 `message` 字段展示原因。
 
+- **搜索 QQ 用户（llonebot：`search_user`）**
+  - 路径：`/search_user`
+  - 请求参数：
+    - `keyword`（必填）：QQ 号。
+  - 返回字段：`uid`、`uin`、`nickname`、`long_nick`、`qid`、`age`、`sex`、`level`、`avatar_url`、`is_friend`。
+  - 请求示例：
+    ```bash
+    curl -X GET "http://127.0.0.1:3000/search_user?keyword=123456789"
+    ```
+
+- **搜索 QQ 群（llonebot：`search_group`）**
+  - 路径：`/search_group`
+  - 请求参数：
+    - `group_id`（必填）：群号。
+  - 返回字段：`group_id`、`group_name`、`member_count`、`max_member_count`、`owner_uid`、`owner_uin`、`group_memo`、`remark_name`、`join_group_auth`、`is_conf_group`。
+  - 请求示例：
+    ```bash
+    curl -X GET "http://127.0.0.1:3000/search_group?group_id=987654321"
+    ```
+
 ## HTTP POST（推送模式）
 - 当 `type` 为 `http-post` 且 `enable` 为 `true` 时，事件会以 POST 方式推送到配置的 `url`。
 - 若配置了 `token`，推送时会在请求头增加 `x-signature: sha1=<HMAC>`，计算方式为 `HMAC_SHA1(body, token)`。
