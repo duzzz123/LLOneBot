@@ -19,10 +19,10 @@ export class JoinGroup extends BaseAction<Payload, Response> {
 
   payloadSchema = Schema.object({
     group_id: Schema.union([Number, String]).required(),
-    comment: String,
-    source_id: Number,
-    inviter_uid: String,
-    ticket: String,
+    comment: String.default(''),
+    source_id: Number.default(null),
+    inviter_uid: String.default(''),
+    ticket: String.default(''),
   })
 
   protected async _handle(payload: Payload): Promise<Response> {
