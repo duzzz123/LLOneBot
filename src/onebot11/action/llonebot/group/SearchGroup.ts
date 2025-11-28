@@ -26,9 +26,9 @@ export class SearchGroup extends BaseAction<Payload, Response> {
   actionName = ActionName.SearchGroup
 
   payloadSchema = Schema.object({
-    group_id: Schema.union([Number, String]).optional(),
-    keyword: Schema.union([String, Number]).optional(),
-    limit: Number.optional(),
+    group_id: Schema.union([Number, String]),
+    keyword: Schema.union([String, Number]),
+    limit: Number,
   })
 
   protected async _handle(payload: Payload): Promise<Response> {
